@@ -59,56 +59,140 @@ async function analyzeWebsite() {
     
     loader.classList.remove('hidden');
     analyzeBtn.disabled = true;
-    showStatus('Analyzing website... This may take a few seconds.', 'info');
     
-    try {
-        // Use different endpoint for local vs production
-        const endpoint = window.location.hostname === 'localhost' ? '/analyze' : '/api/analyze';
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: finalUrl, types: Array.from(activeSchemaTypes) })
-        });
+    // Check if we're in production and the API is failing
+    const isProduction = window.location.hostname !== 'localhost';
+    
+    if (isProduction) {
+        // Production: Use client-side extraction only
+        showStatus('Analyzing website structure from URL...', 'info');
         
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'Failed to analyze website');
-        }
-        
-        extractedData = data;
-        
-        // Auto-populate forms with extracted data
-        if (data.product) {
+        try {
+            // Generate breadcrumbs from URL
+            const urlObj = new URL(finalUrl);
+            const pathParts = urlObj.pathname.split('/').filter(part => part.length > 0);
+            
+            // Extract domain name for title
+            const domainName = urlObj.hostname.replace('www.', '').split('.')[0];
+            const pageTitle = domainName.charAt(0).toUpperCase() + domainName.slice(1);
+            
+            // Create basic data from URL
+            const data = {
+                product: {
+                    name: pageTitle + (pathParts.length > 0 ? ' - ' + pathParts[pathParts.length - 1].replace(/-/g, ' ') : ''),
+                    description: ''
+                },
+                breadcrumb: [{
+                    name: 'Home',
+                    url: urlObj.origin
+                }],
+                faq: [],
+                carousel: [],
+                review: {},
+                existingSchema: []
+            };
+            
+            // Add breadcrumb items from URL path
+            let currentPath = '';
+            pathParts.forEach((part) => {
+                currentPath += '/' + part;
+                const name = part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' ');
+                data.breadcrumb.push({
+                    name: name,
+                    url: urlObj.origin + currentPath
+                });
+            });
+            
+            // Populate forms
             manualData.product = { ...data.product };
-        }
-        if (data.breadcrumb) {
             manualData.breadcrumb = [...data.breadcrumb];
-        }
-        if (data.faq) {
-            manualData.faq = [...data.faq];
-        }
-        if (data.carousel) {
-            manualData.carousel = [...data.carousel];
-        }
-        if (data.review) {
-            manualData.review = { ...data.review };
+            
+            showStatus('URL analyzed! Please manually enter additional data in the editor.', 'info');
+            
+            // Show message about limitations
+            const existingSection = document.getElementById('existingSchemaSection');
+            const existingContent = document.getElementById('existingSchemaContent');
+            existingSection.classList.remove('hidden');
+            existingContent.innerHTML = `
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p class="text-yellow-800 text-sm font-medium mb-2">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Limited Analysis Mode
+                    </p>
+                    <p class="text-yellow-700 text-sm">
+                        Due to browser security restrictions, we cannot fetch website content directly in production. 
+                        We've extracted basic information from the URL structure.
+                    </p>
+                    <p class="text-yellow-700 text-sm mt-2">
+                        For full website analysis including existing schema detection, please:
+                    </p>
+                    <ul class="text-yellow-700 text-sm mt-1 ml-4 list-disc">
+                        <li>Use the local version (download and run locally)</li>
+                        <li>Or manually enter all data using the editor</li>
+                    </ul>
+                </div>
+            `;
+            
+            generateSchema();
+            
+        } catch (error) {
+            showStatus('Invalid URL. Please enter a valid website URL.', 'error');
+        } finally {
+            loader.classList.add('hidden');
+            analyzeBtn.disabled = false;
         }
         
-        // Handle existing schema
-        if (data.existingSchema && data.existingSchema.length > 0) {
-            displayExistingSchema(data.existingSchema);
+    } else {
+        // Local: Use full server analysis
+        showStatus('Analyzing website... This may take a few seconds.', 'info');
+        
+        try {
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: finalUrl, types: Array.from(activeSchemaTypes) })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to analyze website');
+            }
+            
+            extractedData = data;
+            
+            // Auto-populate forms with extracted data
+            if (data.product) {
+                manualData.product = { ...data.product };
+            }
+            if (data.breadcrumb) {
+                manualData.breadcrumb = [...data.breadcrumb];
+            }
+            if (data.faq) {
+                manualData.faq = [...data.faq];
+            }
+            if (data.carousel) {
+                manualData.carousel = [...data.carousel];
+            }
+            if (data.review) {
+                manualData.review = { ...data.review };
+            }
+            
+            // Handle existing schema
+            if (data.existingSchema && data.existingSchema.length > 0) {
+                displayExistingSchema(data.existingSchema);
+            }
+            
+            showStatus('Website analyzed successfully! Review and edit the extracted data below.', 'success');
+            generateSchema();
+            
+        } catch (error) {
+            console.error('Analysis error:', error);
+            showStatus(`Error: ${error.message}. Note: Some websites block automated requests. You can still manually enter data.`, 'error');
+        } finally {
+            loader.classList.add('hidden');
+            analyzeBtn.disabled = false;
         }
-        
-        showStatus('Website analyzed successfully! Review and edit the extracted data below.', 'success');
-        generateSchema();
-        
-    } catch (error) {
-        console.error('Analysis error:', error);
-        showStatus(`Error: ${error.message}. Note: Some websites block automated requests. You can still manually enter data.`, 'error');
-    } finally {
-        loader.classList.add('hidden');
-        analyzeBtn.disabled = false;
     }
 }
 
