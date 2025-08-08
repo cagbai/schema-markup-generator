@@ -62,7 +62,9 @@ async function analyzeWebsite() {
     showStatus('Analyzing website... This may take a few seconds.', 'info');
     
     try {
-        const response = await fetch('/api/analyze', {
+        // Use different endpoint for local vs production
+        const endpoint = window.location.hostname === 'localhost' ? '/analyze' : '/api/analyze';
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: finalUrl, types: Array.from(activeSchemaTypes) })
