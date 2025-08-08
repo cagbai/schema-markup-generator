@@ -134,6 +134,18 @@ function extractStructuredData(html, types, websiteUrl) {
     jsonLdMatches.forEach((match, index) => {
         try {
             const jsonContent = match[1].trim();
+            
+            // Validate content looks like JSON before parsing
+            if (!jsonContent || (!jsonContent.startsWith('{') && !jsonContent.startsWith('['))) {
+                result.existingSchema.push({
+                    type: 'JSON-LD',
+                    index: index + 1,
+                    error: 'Content is not valid JSON format',
+                    raw: jsonContent
+                });
+                return;
+            }
+            
             const schemaData = JSON.parse(jsonContent);
             result.existingSchema.push({
                 type: 'JSON-LD',
