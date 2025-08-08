@@ -367,7 +367,7 @@ function extractStructuredData(html, types, websiteUrl) {
     return result;
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -384,12 +384,24 @@ export default async function handler(req, res) {
     }
     
     try {
+        if (!req.body) {
+            return res.status(400).json({ error: 'Request body is required' });
+        }
+        
         const { url: websiteUrl, types } = req.body;
         
-        console.log(`Analyzing website: ${websiteUrl}`);
+        console.log(`Analyzing website: ${websiteUrl}`, { types });
         
         if (!websiteUrl || !websiteUrl.startsWith('http')) {
-            throw new Error('Please provide a valid URL starting with http:// or https://');
+            return res.status(400).json({ 
+                error: 'Please provide a valid URL starting with http:// or https://' 
+            });
+        }
+        
+        if (!types || !Array.isArray(types) || types.length === 0) {
+            return res.status(400).json({ 
+                error: 'Please select at least one schema type' 
+            });
         }
         
         const html = await fetchWebsiteContent(websiteUrl);
@@ -400,10 +412,10 @@ export default async function handler(req, res) {
         
         res.status(200).json(extractedData);
     } catch (error) {
-        console.error('Error analyzing website:', error.message);
+        console.error('Error analyzing website:', error);
         res.status(500).json({ 
-            error: error.message, 
-            details: 'Check server logs for more information' 
+            error: error.message || 'Unknown error occurred',
+            details: 'The website may be blocking automated requests or be temporarily unavailable'
         });
     }
 }
