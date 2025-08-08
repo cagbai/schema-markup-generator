@@ -385,6 +385,51 @@ function extractStructuredData(html, types, websiteUrl) {
         result.carousel = result.carousel.slice(0, 6);
     }
     
+    // Extract existing schema markup
+    result.existingSchema = [];
+    
+    // Look for JSON-LD scripts
+    const jsonLdMatches = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+    jsonLdMatches.forEach((match, index) => {
+        try {
+            const jsonContent = match[1].trim();
+            const schemaData = JSON.parse(jsonContent);
+            result.existingSchema.push({
+                type: 'JSON-LD',
+                index: index + 1,
+                data: schemaData,
+                raw: jsonContent
+            });
+        } catch (e) {
+            result.existingSchema.push({
+                type: 'JSON-LD',
+                index: index + 1,
+                error: 'Invalid JSON',
+                raw: match[1].trim()
+            });
+        }
+    });
+    
+    // Look for microdata
+    const microdataElements = [...html.matchAll(/<[^>]+itemscope[^>]*>/gi)];
+    if (microdataElements.length > 0) {
+        result.existingSchema.push({
+            type: 'Microdata',
+            count: microdataElements.length,
+            note: 'Microdata detected (detailed extraction not implemented)'
+        });
+    }
+    
+    // Look for RDFa
+    const rdfaElements = [...html.matchAll(/<[^>]+(?:property|typeof|vocab)[^>]*>/gi)];
+    if (rdfaElements.length > 0) {
+        result.existingSchema.push({
+            type: 'RDFa',
+            count: rdfaElements.length,
+            note: 'RDFa detected (detailed extraction not implemented)'
+        });
+    }
+    
     return result;
 }
 

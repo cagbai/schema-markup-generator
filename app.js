@@ -62,7 +62,7 @@ async function analyzeWebsite() {
     showStatus('Analyzing website... This may take a few seconds.', 'info');
     
     try {
-        const response = await fetch('/api/analyze-simple', {
+        const response = await fetch('/api/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: finalUrl, types: Array.from(activeSchemaTypes) })
@@ -91,6 +91,11 @@ async function analyzeWebsite() {
         }
         if (data.review) {
             manualData.review = { ...data.review };
+        }
+        
+        // Handle existing schema
+        if (data.existingSchema && data.existingSchema.length > 0) {
+            displayExistingSchema(data.existingSchema);
         }
         
         showStatus('Website analyzed successfully! Review and edit the extracted data below.', 'success');
@@ -548,6 +553,122 @@ function copySchema() {
     const schemaCode = document.getElementById('schemaCode').textContent;
     navigator.clipboard.writeText(schemaCode).then(() => {
         showStatus('Schema copied to clipboard!', 'success');
+    }).catch(() => {
+        showStatus('Failed to copy schema', 'error');
+    });
+}
+
+// Helper function to get top-level @type from a schema object
+function getTopLevelSchemaType(obj) {
+    if (!obj || typeof obj !== 'object') {
+        return null;
+    }
+    
+    // Handle arrays (like @graph)
+    if (Array.isArray(obj)) {
+        return obj.map(item => getTopLevelSchemaType(item)).filter(Boolean);
+    }
+    
+    // Get the @type at the root level only
+    if (obj['@type']) {
+        const typeValue = Array.isArray(obj['@type']) ? obj['@type'] : [obj['@type']];
+        return typeValue;
+    }
+    
+    // Handle @graph case
+    if (obj['@graph'] && Array.isArray(obj['@graph'])) {
+        return obj['@graph'].map(item => getTopLevelSchemaType(item)).flat().filter(Boolean);
+    }
+    
+    return null;
+}
+
+function displayExistingSchema(existingSchemas) {
+    const section = document.getElementById('existingSchemaSection');
+    const content = document.getElementById('existingSchemaContent');
+    
+    section.classList.remove('hidden');
+    
+    let html = '';
+    
+    if (existingSchemas.length === 0) {
+        html = '<p class="text-gray-500 text-sm">No existing schema markup found on this page.</p>';
+    } else {
+        html += `<div class="mb-4"><span class="bg-green-100 text-green-800 text-sm font-medium px-2 py-1 rounded">${existingSchemas.length} JSON-LD block(s) found</span></div>`;
+        
+        existingSchemas.forEach((schema, index) => {
+            html += `<div class="border border-gray-200 rounded-lg p-4 mb-4">`;
+            
+            // Header with top-level types only
+            html += `<div class="flex justify-between items-center mb-3">`;
+            html += `<h3 class="font-medium text-gray-900">${schema.type}${schema.index ? ` #${schema.index}` : ''}</h3>`;
+            
+            if (schema.data) {
+                const topLevelTypes = getTopLevelSchemaType(schema.data);
+                if (topLevelTypes && topLevelTypes.length > 0) {
+                    html += `<div class="flex flex-wrap gap-1">`;
+                    topLevelTypes.forEach(type => {
+                        html += `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">${type}</span>`;
+                    });
+                    html += `</div>`;
+                }
+            }
+            html += `</div>`;
+            
+            // Content
+            if (schema.error) {
+                html += `<div class="bg-red-50 border border-red-200 rounded p-3 mb-3">`;
+                html += `<p class="text-red-700 text-sm font-medium">Error: ${schema.error}</p>`;
+                html += `<pre class="text-red-600 text-xs mt-2 whitespace-pre-wrap">${schema.raw}</pre>`;
+                html += `</div>`;
+            } else if (schema.data) {
+                // Show key info
+                html += `<div class="grid grid-cols-2 gap-4 mb-3 text-sm">`;
+                if (schema.data.name) html += `<div><span class="text-gray-500">Name:</span> ${schema.data.name}</div>`;
+                if (schema.data.description) html += `<div><span class="text-gray-500">Description:</span> ${schema.data.description.substring(0, 50)}...</div>`;
+                if (schema.data.url) html += `<div><span class="text-gray-500">URL:</span> ${schema.data.url}</div>`;
+                if (schema.data['@context']) html += `<div><span class="text-gray-500">Context:</span> ${schema.data['@context']}</div>`;
+                html += `</div>`;
+                
+                // Collapsible full JSON
+                html += `<div class="border-t pt-3">`;
+                html += `<button onclick="toggleSchemaDetails('existing-${index}')" class="text-sm text-blue-600 hover:text-blue-800 mb-2">`;
+                html += `<i class="fas fa-eye mr-1"></i>View Full Schema`;
+                html += `</button>`;
+                html += `<pre id="existing-${index}" class="hidden bg-gray-50 p-3 rounded text-xs overflow-x-auto max-h-60 overflow-y-auto">${JSON.stringify(schema.data, null, 2)}</pre>`;
+                html += `<button onclick="copyExistingSchema('existing-${index}')" class="hidden text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded mt-2" id="copy-existing-${index}">`;
+                html += `<i class="fas fa-copy mr-1"></i>Copy`;
+                html += `</button>`;
+                html += `</div>`;
+            } else if (schema.note) {
+                html += `<p class="text-gray-600 text-sm">${schema.note}</p>`;
+                if (schema.count) html += `<p class="text-gray-500 text-xs mt-1">${schema.count} elements found</p>`;
+            }
+            
+            html += `</div>`;
+        });
+    }
+    
+    content.innerHTML = html;
+}
+
+function toggleSchemaDetails(id) {
+    const element = document.getElementById(id);
+    const copyBtn = document.getElementById('copy-' + id);
+    
+    if (element.classList.contains('hidden')) {
+        element.classList.remove('hidden');
+        copyBtn.classList.remove('hidden');
+    } else {
+        element.classList.add('hidden');
+        copyBtn.classList.add('hidden');
+    }
+}
+
+function copyExistingSchema(id) {
+    const element = document.getElementById(id);
+    navigator.clipboard.writeText(element.textContent).then(() => {
+        showStatus('Existing schema copied to clipboard!', 'success');
     }).catch(() => {
         showStatus('Failed to copy schema', 'error');
     });
