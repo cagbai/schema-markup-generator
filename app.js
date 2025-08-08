@@ -62,7 +62,7 @@ async function analyzeWebsite() {
     showStatus('Analyzing website... This may take a few seconds.', 'info');
     
     try {
-        const response = await fetch('/analyze', {
+        const response = await fetch('/api/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: finalUrl, types: Array.from(activeSchemaTypes) })
