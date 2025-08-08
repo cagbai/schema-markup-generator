@@ -470,8 +470,8 @@ const server = http.createServer(async (req, res) => {
         return;
     }
     
-    // Handle analyze endpoint
-    if (pathname === '/analyze' && req.method === 'POST') {
+    // Handle analyze endpoint (both /analyze and /api/analyze for consistency)
+    if ((pathname === '/analyze' || pathname === '/api/analyze') && req.method === 'POST') {
         let body = '';
         
         req.on('data', chunk => {
