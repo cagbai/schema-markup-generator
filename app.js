@@ -65,9 +65,8 @@ async function analyzeWebsite() {
     showStatus('Analyzing website... This may take a few seconds.', 'info');
     
     try {
-        // Determine the correct endpoint URL
-        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const analyzeUrl = isLocalhost ? '/analyze' : '/api/analyze';
+        // Always use the API endpoint - works in both local and production
+        const analyzeUrl = '/api/analyze';
         
         const response = await fetch(analyzeUrl, {
             method: 'POST',
