@@ -1,0 +1,23 @@
+{
+  "name": "schema-markup-generator",
+  "version": "1.0.0",
+  "description": "A web app for generating schema markup for websites",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build step required'"
+  },
+  "keywords": [
+    "schema",
+    "markup",
+    "seo",
+    "structured-data",
+    "vercel"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.x"
+  }
+}

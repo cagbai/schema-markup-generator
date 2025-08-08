@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schema Markup Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-600 p-2 rounded">
+                        <i class="fas fa-code text-white"></i>
+                    </div>
+                    <h1 class="text-xl font-semibold text-gray-900">Schema Markup Generator</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- How It Works -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h2 class="font-semibold text-blue-900 mb-2 flex items-center">
+                <i class="fas fa-info-circle mr-2"></i>How It Works
+            </h2>
+            <ol class="text-sm text-blue-800 space-y-1">
+                <li><span class="font-medium">1.</span> Select which schema types you want (click buttons below to turn them blue)</li>
+                <li><span class="font-medium">2.</span> Either analyze a website URL OR manually enter data in the Data Editor</li>
+                <li><span class="font-medium">3.</span> Click "Generate Schema" to create the markup</li>
+                <li><span class="font-medium">4.</span> Copy the generated code and paste it into your website's HTML</li>
+            </ol>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="statusMessage" class="hidden mb-6 rounded-lg p-4 flex items-center justify-between"></div>
+
+        <!-- URL Input Section -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Website URL</label>
+                <div class="flex gap-3">
+                    <input 
+                        type="url" 
+                        id="urlInput" 
+                        placeholder="https://example.com" 
+                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                    <button 
+                        onclick="analyzeWebsite()" 
+                        id="analyzeBtn"
+                        class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <i class="fas fa-search mr-2"></i>
+                        Analyze
+                    </button>
+                </div>
+            </div>
+
+            <!-- Schema Type Selection -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Select Schema Types to Generate</label>
+                <p class="text-xs text-gray-500 mb-3">Click to select which schema types you want to include (blue = selected)</p>
+                <div class="flex flex-wrap gap-2">
+                    <button 
+                        class="schema-type-btn px-4 py-2 rounded-full text-sm font-medium transition-colors" 
+                        data-type="product" 
+                        onclick="toggleSchemaType(this)"
+                    >
+                        <i class="fas fa-shopping-bag mr-1"></i> Product
+                    </button>
+                    <button 
+                        class="schema-type-btn px-4 py-2 rounded-full text-sm font-medium transition-colors" 
+                        data-type="breadcrumb" 
+                        onclick="toggleSchemaType(this)"
+                    >
+                        <i class="fas fa-bread-slice mr-1"></i> Breadcrumbs
+                    </button>
+                    <button 
+                        class="schema-type-btn px-4 py-2 rounded-full text-sm font-medium transition-colors" 
+                        data-type="carousel" 
+                        onclick="toggleSchemaType(this)"
+                    >
+                        <i class="fas fa-images mr-1"></i> Carousel
+                    </button>
+                    <button 
+                        class="schema-type-btn px-4 py-2 rounded-full text-sm font-medium transition-colors" 
+                        data-type="faq" 
+                        onclick="toggleSchemaType(this)"
+                    >
+                        <i class="fas fa-question-circle mr-1"></i> FAQ
+                    </button>
+                    <button 
+                        class="schema-type-btn px-4 py-2 rounded-full text-sm font-medium transition-colors" 
+                        data-type="review" 
+                        onclick="toggleSchemaType(this)"
+                    >
+                        <i class="fas fa-star mr-1"></i> Reviews
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loader" class="hidden mb-6">
+            <div class="flex justify-center items-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span class="ml-3 text-gray-600">Analyzing website...</span>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid lg:grid-cols-2 gap-6">
+            <!-- Schema Output Panel -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-code mr-2 text-blue-600"></i>
+                        Generated Schema
+                    </h2>
+                    <button 
+                        onclick="copySchema()"
+                        class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                    >
+                        <i class="fas fa-copy mr-1"></i> Copy
+                    </button>
+                </div>
+                
+                <div class="relative">
+                    <pre id="schemaCode" class="bg-gray-50 text-gray-800 p-4 rounded-lg font-mono text-sm overflow-x-auto max-h-[500px] overflow-y-auto border border-gray-200">Your generated schema will appear here...</pre>
+                </div>
+                
+                <button 
+                    onclick="generateSchema()"
+                    class="w-full mt-4 px-6 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
+                >
+                    <i class="fas fa-magic mr-2"></i>
+                    Generate Schema
+                </button>
+            </div>
+
+            <!-- Manual Input Panel -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-edit mr-2 text-blue-600"></i>
+                    Data Editor
+                </h2>
+                
+                <div id="manualInputForm">
+                    <div class="mb-4">
+                        <select 
+                            id="schemaTypeSelect" 
+                            onchange="showSchemaForm()"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="">Choose schema type to edit...</option>
+                            <option value="product">Product</option>
+                            <option value="breadcrumb">Breadcrumbs</option>
+                            <option value="carousel">Carousel</option>
+                            <option value="faq">FAQ</option>
+                            <option value="review">Reviews</option>
+                        </select>
+                    </div>
+                    <div id="schemaForms" class="space-y-4 max-h-[600px] overflow-y-auto"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Clean scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f3f4f6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        /* Schema type button styles */
+        .schema-type-btn:not(.bg-blue-600) {
+            background: white;
+            border: 1px solid #d1d5db;
+            color: #6b7280;
+        }
+        .schema-type-btn:not(.bg-blue-600):hover {
+            background: #f9fafb;
+        }
+
+        /* Status message styles */
+        #statusMessage.success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #15803d;
+        }
+        #statusMessage.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+        #statusMessage.info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        /* Form input styles */
+        input[type="text"],
+        input[type="url"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+        
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+    </style>
+
+    <script src="app.js"></script>
+</body>
+</html>
