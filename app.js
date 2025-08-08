@@ -60,12 +60,16 @@ async function analyzeWebsite() {
     loader.classList.remove('hidden');
     analyzeBtn.disabled = true;
     
-    // Check if we're in production and the API is failing
-    const isProduction = window.location.hostname !== 'localhost';
+    // Check if we're in production - use multiple detection methods
+    const isProduction = window.location.hostname !== 'localhost' && 
+                         window.location.hostname !== '127.0.0.1' &&
+                         (window.location.hostname.includes('vercel.app') || 
+                          window.location.protocol === 'https:');
     
     if (isProduction) {
         // Production: Use client-side extraction only
-        showStatus('Analyzing website structure from URL...', 'info');
+        console.log('Running in production mode - using client-side fallback');
+        showStatus('Running in limited analysis mode due to server restrictions...', 'info');
         
         try {
             // Generate breadcrumbs from URL
@@ -144,6 +148,7 @@ async function analyzeWebsite() {
         
     } else {
         // Local: Use full server analysis
+        console.log('Running in local mode - using server analysis');
         showStatus('Analyzing website... This may take a few seconds.', 'info');
         
         try {
