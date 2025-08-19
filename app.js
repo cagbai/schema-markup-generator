@@ -5,7 +5,11 @@ let manualData = {
     breadcrumb: [],
     carousel: [],
     faq: [],
-    review: {}
+    review: {},
+    // New schema types
+    localbusiness: {},
+    event: {},
+    organization: {}
 };
 
 function showStatus(message, type) {
@@ -123,6 +127,17 @@ function showSchemaForm() {
     if (!schemaType) {
         formsContainer.innerHTML = '';
         return;
+    }
+    
+    // Check if it's a new modular schema
+    if (window.SchemaRegistry && !window.SchemaRegistry.isLegacy(schemaType)) {
+        const formHTML = window.SchemaRegistry.renderForm(schemaType, manualData[schemaType] || {});
+        if (formHTML) {
+            formsContainer.innerHTML = formHTML;
+            // Add change listeners for new schema forms
+            addFormChangeListeners(schemaType);
+            return;
+        }
     }
     
     let formHTML = '';
@@ -389,6 +404,36 @@ function removeCarouselItem(index) {
     showSchemaForm();
 }
 
+// Helper function for new schema form change listeners
+function addFormChangeListeners(schemaType) {
+    const form = document.getElementById('schemaForms');
+    if (!form) return;
+    
+    // Initialize data object if it doesn't exist
+    if (!manualData[schemaType]) {
+        manualData[schemaType] = {};
+    }
+    
+    // Add change listeners to all form inputs
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const fieldName = this.name || this.id;
+            if (fieldName) {
+                manualData[schemaType][fieldName] = this.value;
+            }
+        });
+        
+        // Also add input listeners for real-time updates
+        input.addEventListener('input', function() {
+            const fieldName = this.name || this.id;
+            if (fieldName) {
+                manualData[schemaType][fieldName] = this.value;
+            }
+        });
+    });
+}
+
 function generateSchema() {
     // Check if any schema types are selected
     if (activeSchemaTypes.size === 0) {
@@ -541,6 +586,19 @@ function generateSchema() {
         }
         
         schemas.push(reviewSchema);
+    }
+    
+    // Generate schemas for new modular types
+    if (window.SchemaRegistry) {
+        activeSchemaTypes.forEach(schemaType => {
+            if (!window.SchemaRegistry.isLegacy(schemaType)) {
+                const schemaData = manualData[schemaType] || {};
+                const generatedSchema = window.SchemaRegistry.generateSchema(schemaType, schemaData);
+                if (generatedSchema) {
+                    schemas.push(generatedSchema);
+                }
+            }
+        });
     }
     
     // Display generated schemas
