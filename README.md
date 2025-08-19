@@ -6,6 +6,8 @@ A comprehensive web application for analyzing existing schema markup and generat
 **Production URL**: https://ai-schema.azumo.com  
 **Alternative URL**: https://schema-markup-generator-three.vercel.app
 
+**Latest Update**: Added LocalBusiness, Event, and Organization schemas
+
 ## 📋 Features
 
 ### 1. Schema Analysis
