@@ -1,4 +1,5 @@
 let activeSchemaTypes = new Set(); // Start with nothing selected
+// Updated: Dec 19 2024 - Added new schema types
 let extractedData = {};
 let manualData = {
     product: {},
