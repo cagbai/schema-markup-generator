@@ -105,6 +105,27 @@
                     >
                         <i class="fas fa-star mr-1"></i> Reviews
                     </button>
+                    <button 
+                        class="schema-type-btn px-4 py-2 rounded-full text-sm font-medium transition-colors" 
+                        data-type="localbusiness" 
+                        onclick="toggleSchemaType(this)"
+                    >
+                        <i class="fas fa-building mr-1"></i> Local Business
+                    </button>
+                    <button 
+                        class="schema-type-btn px-4 py-2 rounded-full text-sm font-medium transition-colors" 
+                        data-type="event" 
+                        onclick="toggleSchemaType(this)"
+                    >
+                        <i class="fas fa-calendar-alt mr-1"></i> Event
+                    </button>
+                    <button 
+                        class="schema-type-btn px-4 py-2 rounded-full text-sm font-medium transition-colors" 
+                        data-type="organization" 
+                        onclick="toggleSchemaType(this)"
+                    >
+                        <i class="fas fa-sitemap mr-1"></i> Organization
+                    </button>
                 </div>
             </div>
         </div>
@@ -167,6 +188,9 @@
                             <option value="carousel">Carousel</option>
                             <option value="faq">FAQ</option>
                             <option value="review">Reviews</option>
+                            <option value="localbusiness">Local Business</option>
+                            <option value="event">Event</option>
+                            <option value="organization">Organization</option>
                         </select>
                     </div>
                     <div id="schemaForms" class="space-y-4 max-h-[600px] overflow-y-auto"></div>
@@ -260,17 +284,8 @@
         }
     </style>
 
-    <!-- Schema Generator Scripts -->
+    <!-- Enhanced JSON-LD Validator -->
     <script src="validators.js"></script>
-    <script src="utils.js"></script>
-    <script src="constants.js"></script>
-    <script src="schema-registry.js"></script>
-    
-    <!-- Schema Type Implementations -->
-    <script src="schemas/localbusiness.js"></script>
-    <script src="schemas/event.js"></script>
-    <script src="schemas/organization.js"></script>
-    
     <!-- Main Application -->
     <script src="app.js"></script>
 </body>
