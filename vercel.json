@@ -5,6 +5,5 @@
     }
   },
   "buildCommand": "echo 'No build required'",
-  "outputDirectory": ".",
-  "public": false
+  "outputDirectory": "."
 }
