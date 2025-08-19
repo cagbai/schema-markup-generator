@@ -3,11 +3,12 @@
 A comprehensive web application for analyzing existing schema markup and generating new structured data for websites. This tool helps SEO professionals and developers manage schema.org markup efficiently.
 
 ## 🌐 Live Demo
-Access the app at: https://schema-markup-generator-ix8wnqozl-cagbais-projects.vercel.app
+**Production URL**: https://ai-schema.azumo.com  
+**Alternative URL**: https://schema-markup-generator-three.vercel.app
 
 ## 📋 Features
 
-### 1. Schema Analysis (NEW)
+### 1. Schema Analysis
 **Detect and review existing schema on any website:**
 - Automatically finds all JSON-LD, Microdata, and RDFa schemas
 - Displays top-level `@type` for easy human review
@@ -41,6 +42,16 @@ Access the app at: https://schema-markup-generator-ix8wnqozl-cagbais-projects.ve
 - Create schema from scratch without website analysis
 - Dynamic forms for each schema type
 - Real-time preview of generated markup
+
+## 🆕 Recent Updates
+
+### December 2024 Release
+- **Improved UI Layout**: Main working areas (Generated Schema & Data Editor) now appear prominently at the top
+- **Enhanced Analysis**: Fixed production analysis for all websites including JavaScript-heavy sites
+- **Custom Domain**: Now available at ai-schema.azumo.com
+- **Brand Identity**: Added Azumo logo to the header
+- **Better Error Handling**: Clearer messages when websites block automated requests
+- **Performance**: Optimized API endpoint routing for faster analysis
 
 ## 🚀 How to Use
 
@@ -98,6 +109,8 @@ Access the app at: https://schema-markup-generator-ix8wnqozl-cagbais-projects.ve
 - **Frontend:** HTML, Tailwind CSS, Vanilla JavaScript
 - **Backend:** Node.js server for local development
 - **Serverless:** Vercel Functions for production
+- **Custom Domain:** Hosted at ai-schema.azumo.com via Vercel
+- **DNS:** Managed through Cloudflare
 - **No database required** - Stateless operation
 
 ### Deployment Options
@@ -120,6 +133,8 @@ node server.js
 - Automatically deploys from GitHub repository
 - Serverless functions handle website analysis
 - Global CDN for fast access
+- Custom domain: ai-schema.azumo.com
+- SSL certificate automatically provisioned
 
 ### API Endpoints
 
@@ -209,13 +224,14 @@ MIT License - Free to use and modify
 
 ## 🏢 About
 
-Created by Azumo - A software development company specializing in AI and custom software solutions.
+Created by [Azumo](https://azumo.com) - A top-rated nearshore software development company specializing in AI, data engineering, and custom software solutions.
 
 ## 🆘 Support
 
 For issues or questions:
 - Create an issue on [GitHub](https://github.com/cagbai/schema-markup-generator/issues)
 - Visit [Azumo.com](https://azumo.com) for professional SEO and development services
+- Email: hello@azumo.co
 
 ---
 

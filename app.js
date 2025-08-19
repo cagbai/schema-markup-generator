@@ -603,6 +603,16 @@ function displayExistingSchema(existingSchemas) {
         html += `<div class="mb-4"><span class="bg-green-100 text-green-800 text-sm font-medium px-2 py-1 rounded">${existingSchemas.length} JSON-LD block(s) found</span></div>`;
         
         existingSchemas.forEach((schema, index) => {
+            // If we have the new validator and this schema has an error, try re-validating
+            if (window.validateJsonLd && schema.error && schema.raw) {
+                const revalidation = window.validateJsonLd(schema.raw);
+                if (revalidation.valid) {
+                    // The new validator says it's valid, use the validated data
+                    schema.error = null;
+                    schema.data = revalidation.data;
+                }
+            }
+            
             html += `<div class="border border-gray-200 rounded-lg p-4 mb-4">`;
             
             // Header with top-level types only
@@ -610,7 +620,11 @@ function displayExistingSchema(existingSchemas) {
             html += `<h3 class="font-medium text-gray-900">${schema.type}${schema.index ? ` #${schema.index}` : ''}</h3>`;
             
             if (schema.data) {
-                const topLevelTypes = getTopLevelSchemaType(schema.data);
+                // Use new extractSchemaTypes if available, otherwise fall back to old method
+                const topLevelTypes = window.extractSchemaTypes ? 
+                    window.extractSchemaTypes(schema.data) : 
+                    getTopLevelSchemaType(schema.data);
+                    
                 if (topLevelTypes && topLevelTypes.length > 0) {
                     html += `<div class="flex flex-wrap gap-1">`;
                     topLevelTypes.forEach(type => {
