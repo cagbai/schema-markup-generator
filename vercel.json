@@ -4,6 +4,12 @@
       "maxDuration": 30
     }
   },
+  "routes": [
+    {
+      "src": "/js/(.*)",
+      "dest": "/js/$1"
+    }
+  ],
   "buildCommand": "echo 'No build required'",
   "outputDirectory": "."
 }
