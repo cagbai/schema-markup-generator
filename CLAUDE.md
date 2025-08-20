@@ -8,9 +8,11 @@ This is a **production web application** currently live at:
 **CRITICAL**: Any changes must maintain backward compatibility and not break the production site.
 
 ## Current Architecture Summary
-- **Monolithic Design**: Single 681-line `app.js` file containing all client-side logic
-- **Zero Dependencies**: No npm packages, no build process
-- **Vanilla Stack**: Pure JavaScript, Tailwind CSS (CDN), Font Awesome icons
+- **Hybrid Design**: Main app.js + modular schema system
+- **Plugin Architecture**: Schema registry for extensible schema types
+- **Enhanced Utilities**: Shared validation, form generation, constants
+- **8 Schema Types**: Original 5 + LocalBusiness, Event, Organization
+- **Zero Build Process**: Direct file serving, no compilation needed
 - **Deployment**: Vercel with serverless functions
 
 ## Key Files and Their Purposes
@@ -31,17 +33,20 @@ This is a **production web application** currently live at:
 - **server.js** (546 lines) - Local development server with extraction logic
 - **api/analyze.js** (218 lines) - Vercel serverless function for production
 
-## Known Issues to Address
+## Current Issues to Monitor
 
-### 1. JSON-LD Validation Problem
-**Location**: `app.js` lines 591-659
-**Issue**: Sometimes marks valid JSON-LD as invalid
-**User Impact**: Confusing error messages in "Existing Schema Found" section
-**Priority**: HIGH - Direct user-facing issue
+### 1. Deployment Sync Issue
+**Location**: Production site (https://ai-schema.azumo.com)
+**Issue**: New schema types (LocalBusiness, Event, Organization) not yet visible
+**Cause**: GitHub-Vercel connection recently established
+**Priority**: HIGH - Affects new feature availability
+**Action**: Verify deployment, manually redeploy if needed
 
-### 2. Monolithic Code Structure
-**Issue**: Hard to add new schema types without modifying multiple places
-**Priority**: MEDIUM - Developer experience issue
+### 2. User Experience Clarity
+**Location**: UI workflow
+**Issue**: Users confused about analyze vs. generate workflow  
+**Priority**: HIGH - Affects user understanding
+**Planned Fix**: Priority 1 in FEATURE_ROADMAP.md
 
 ## Incremental Improvement Strategy
 

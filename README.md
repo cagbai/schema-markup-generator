@@ -21,12 +21,15 @@ A comprehensive web application for analyzing existing schema markup and generat
 
 ### 2. Schema Generation
 **Create new structured data markup:**
-- **5 Schema Types Supported:**
+- **8 Schema Types Supported:**
   - **Product** - For products, services, or offerings
   - **Breadcrumb** - For navigation hierarchy
   - **Carousel (ItemList)** - For lists, galleries, or collections
   - **FAQ** - For frequently asked questions
   - **Review** - For ratings and reviews
+  - **LocalBusiness** - For local businesses, restaurants, shops
+  - **Event** - For conferences, webinars, concerts, meetings
+  - **Organization** - For companies, nonprofits, institutions
 
 ### 3. Intelligent Content Extraction
 **Automatic website analysis extracts:**
@@ -47,13 +50,18 @@ A comprehensive web application for analyzing existing schema markup and generat
 
 ## 🆕 Recent Updates
 
-### December 2024 Release
-- **Improved UI Layout**: Main working areas (Generated Schema & Data Editor) now appear prominently at the top
-- **Enhanced Analysis**: Fixed production analysis for all websites including JavaScript-heavy sites
+### December 2024 Release - Phase 2
+- **3 New Schema Types**: LocalBusiness, Event, Organization (top user requests)
+- **Plugin Architecture**: Modular system for easy schema expansion
+- **Enhanced Validation**: Better JSON-LD detection and error messages
+- **Smart Form Generation**: Auto-generated forms with proper field types
+- **Improved Data Extraction**: Better detection of business info, events, contact details
+
+### Phase 1 Release  
+- **Enhanced JSON-LD Validation**: Fixed bug where valid schemas marked as invalid
+- **Improved UI Layout**: Main working areas prominently displayed
 - **Custom Domain**: Now available at ai-schema.azumo.com
-- **Brand Identity**: Added Azumo logo to the header
-- **Better Error Handling**: Clearer messages when websites block automated requests
-- **Performance**: Optimized API endpoint routing for faster analysis
+- **Better Error Handling**: Clearer messages when websites block requests
 
 ## 🚀 How to Use
 
